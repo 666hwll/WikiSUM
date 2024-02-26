@@ -1,4 +1,3 @@
-#!usr/bin/python3.10
 from wikipedia import summary 
 from transformers import pipeline
 from tkinter import *
