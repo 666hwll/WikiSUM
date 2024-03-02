@@ -14,6 +14,9 @@ class corpus:
         if iNs:
             text.insert(tkinter.END, userin)
 
+    def view_original(self) -> None:
+        self.change(results, True, True)
+
     def get_sum(self) -> None:
         global results
         query = entrypoint.get()
@@ -47,11 +50,14 @@ window.resizable(1,1)
 entrypoint = tkinter.Entry(window, width=20)
 text = tkinter.Text(window, width=40, height=35)
 
+buttonZ = tkinter.Button(window, text="view original", command=processs.view_original)
 buttonA = tkinter.Button(window, text="SEARCH", command=processs.get_sum)
 buttonB = tkinter.Button(window, text="ASK", command=processs.answer_Q)
 entrypoint.pack()
 buttonA.pack()
+buttonZ.pack()
 buttonB.pack()
 text.pack()
 
 window.mainloop()
+
