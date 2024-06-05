@@ -1,10 +1,10 @@
 import wikipedia
+import gtts
 import transformers
 import tkinter 
 from tkinter import messagebox
 import gc
-import pyttsx3
-
+from just_playback import Playback 
 
 
 class programm:
@@ -12,17 +12,18 @@ class programm:
     def __init__(self):
         self.results: str = ""
         self.readable: str = ""
-        self.answer_read: str = ""
-        #self.suffVAR = [] # [0] = original; [1] = summarization; [2] = answers
-        ## Todo: make a list of values above
-        self.state: int = 0
-
+        self.state: bool = False
+        self.question_answerer = transformers.pipeline("question-answering", model="Falconsai/question_answering_v2")
+        self.summarizer = transformers.pipeline("summarization", model="Falconsai/text_summarization")
+        self.tts = Playback()
 
     def onclose(self) -> None:
         if tkinter.messagebox.askokcancel("Quit", "Do you want to quit?"):
             gc.collect(2)
             window.destroy()
 
+    def _close(self, event) -> None:
+        self.onclose()
 
     def change(self, userin: str, dl:bool, iNs:bool) -> None:
         if dl:
@@ -32,7 +33,7 @@ class programm:
 
 
     def view_original(self) -> None:
-        self.state = 0
+        self.state = True
         self.change(self.results, True, True)
         gc.collect(0)
 
@@ -44,13 +45,15 @@ class programm:
         else:
             self.change("" ,True, False)
             entrypoint.delete(0, tkinter.END)
+            
             gc.collect(1)
             self.results = wikipedia.summary(query, auto_suggest=True)
-            results_sum = summarizer(self.results, max_length=1000, do_sample=False)
+            results_sum = self.summarizer(self.results, max_length=1000, do_sample=False)
             self.readable = str(results_sum[0]['summary_text'])
-            self.state = 1
+            self.state = False
             self.change(self.readable, False, True)
-
+    def _sum(self, event) -> None:
+        self.get_sum()
 
     def answer_Q(self) -> None:
         query = str(entrypoint.get())
@@ -59,35 +62,34 @@ class programm:
                 self.change("No context provided", True, True)
             else:
                 entrypoint.delete(0, tkinter.END)
-                a = question_answerer(question=query, context=self.results)
-                self.answer_read = a['answer']
-                self.state = 2
-                self.change(self.answer_read, True, True)
+                
+                gc.collect(0)
+                a = self.question_answerer(question=query, context=self.results)
+                self.readable = a['answer']
+                self.state = False
+                self.change(self.readable, True, True)
         else:
             self.change("No question provided", True, True)
     
 
     def speak_r(self) -> None:
         text = ""
-        if self.state == 0:
+        if self.state == True:
             text = self.results
-        elif self.state == 1:
+        elif self.state == False and self.readable != "":
             text = self.readable
-        elif self.state == 2:
-            text = self.answer_read
         else:
             text = "Did not found valid text"
-        speech.say(text)
-        speech.runAndWait()
+        obj = gtts.gTTS(text=text, lang='en', slow=False)
+        a: str = 'out.mp3'
+        obj.save(a)
+        self.tts.load_file(a)
+        self.tts.play()
+
 
 
 def main() -> None:
     #gc.set_debug(True)
-    ## Todo: make global tuple to standart values or config values that don't need to change
-    global speech, summarizer, question_answerer
-    speech = pyttsx3.init()
-    summarizer = transformers.pipeline("summarization", model="Falconsai/text_summarization")
-    question_answerer = transformers.pipeline("question-answering", model="Falconsai/question_answering_v2")
     gc.disable()
     global window
     window = tkinter.Tk()
@@ -96,6 +98,7 @@ def main() -> None:
     window.title("WikiSUM")
     window.geometry("800x800")
     window.resizable(1,1)
+    window.bind("<Control-q>", processs._close)
     global entrypoint
     entrypoint = tkinter.Entry(window, width=19)
     global text
@@ -105,6 +108,7 @@ def main() -> None:
     buttonA = tkinter.Button(window, text="SEARCH", command=processs.get_sum, fg='red', activeforeground='violet', underline=5)
     buttonB = tkinter.Button(window, text="ASK", command=processs.answer_Q, fg='red', activeforeground='violet', underline=2)
     entrypoint.pack(fill='x', expand=True)
+    entrypoint.bind("<Return>", processs._sum)
     buttonA.pack(fill='x', expand=True)
     buttonZ.pack(fill='x', expand=True)
     buttonB.pack(fill='x', expand=True)
