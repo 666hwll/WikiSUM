@@ -11,18 +11,18 @@ import wikipedia
 import gtts
 from just_playback import Playback
 
-
-##### todo: input system mit return key -> weniger bloat und referenzen
+# todo: caching wikipedia answers
 
 def checkdevice() -> None:
-    global device
     if torch.cuda.is_available():
         device = torch.device("cuda")
-            #self.device_name = torch.cuda.get_device_name(0) # the name of the graphic chip
+        # self.device_name = torch.cuda.get_device_name(0) # the name of the graphic chip
     elif hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
         device = torch.device("mps")
     else:
         device = torch.device("cpu")
+    return device
+
 
 class programm:
 
@@ -34,7 +34,8 @@ class programm:
         self.results_sum: dict = {}
         self.state: bool = False
         self.pipe_state: bool = False
-        self.question_answerer = transformers.pipeline("question-answering", model="Falconsai/question_answering_v2", device=device)
+        self.question_answerer = transformers.pipeline("question-answering", model="Falconsai/question_answering_v2",
+                                                       device=device)
         self.summarizer = transformers.pipeline("summarization", model="Falconsai/text_summarization", device=device)
         self.tts = Playback()
 
@@ -45,7 +46,6 @@ class programm:
 
     def close(self, event) -> None:
         window.destroy()
-       
 
     ### DUMMY FUNCTIONS for Testing Purposes
     def some(self) -> None:
@@ -62,7 +62,7 @@ class programm:
             tex = "Did not found valid text"
         return tex
 
-    def checkpages(self): ### input doesn't work because there is only the menubar button
+    def checkpages(self):  
         query = ""
         if self.pipe_state:
             query = self.pipe
@@ -75,7 +75,6 @@ class programm:
         self.change("", True, False)
         res = wikipedia.search(query)
         self.change(res, True, True)
-        
 
     def open_file(self) -> None:
         p: str = filedialog.askopenfilename()
@@ -85,16 +84,21 @@ class programm:
             self.pipe_state = True
 
     def save_file(self) -> None:
-        txt = ''.join(self.results + '\n\n' + str(self.results_sum[0]['summary_text']) + '\n\n' + self.readable + '\n\n')
+        txt = ''.join(
+            self.results + '\n\n' + str(self.results_sum[0]['summary_text']) + '\n\n' + self.readable + '\n\n')
         p: str = filedialog.asksaveasfile(mode='w')
         p.write(txt)
-    
+
     def rmaudio(self) -> None:
         try:
             os.remove('out.mp3')
             self.change('Successfully cleared the Audio Cache!')
         except:
             self.change('No Audio Cache found to clear.', True, True)
+
+    def showvar(self):
+        var = f"{device}, pipe:{self.pipe_state}"
+        self.change(var,True, True)
 
     def wikifor(self) -> None:
         webbrowser.open("https://github.com/666hwll/WikiSUM/wiki")
@@ -131,7 +135,8 @@ class programm:
         try:
             self.results = wikipedia.summary(query, auto_suggest=True)
         except:
-            self.change("Well, no pages match you inquery; under options you may check if there are potential matches.", True, True)
+            self.change("Well, no pages match you inquery; under options you may check if there are potential matches.",
+                        True, True)
             return False
 
         self.results_sum = self.summarizer(self.results, max_length=1000, do_sample=False)
@@ -140,12 +145,8 @@ class programm:
         self.change(self.readable, False, True)
         return True
 
-    def input_s(self) -> None:
-        in_s = str(entrypoint.get())
-
-    def input(self, event) -> None:
-        input_s()
-
+    def sum(self, event) -> None:
+        self.get_sum()
     def answer_Q(self) -> None:
         query = ""
         if self.pipe_state:
@@ -153,18 +154,18 @@ class programm:
             self.pipe_state = False
 
         else:
-            query = entrypoint.get()                    #
-            if query != "":                             #       
+            query = entrypoint.get()  #
+            if query != "":  #
                 if self.results == "":
-                    self.change("No context provided", True, True)      #
-                else:                                                   #
-                    entrypoint.delete(0, tkinter.END)                   #
+                    self.change("No context provided", True, True)  #
+                else:  #
+                    entrypoint.delete(0, tkinter.END)  #
 
-                gc.collect(0)                                           
-                a = self.question_answerer(question=query, context=self.results)       
-                self.readable = a['answer']                                            
-                self.state = False                                                     
-                self.change(self.readable, True, True)                                  
+                gc.collect(0)
+                a = self.question_answerer(question=query, context=self.results)
+                self.readable = a['answer']
+                self.state = False
+                self.change(self.readable, True, True)
             else:
                 self.change("No question provided", True, True)
 
@@ -178,8 +179,8 @@ class programm:
 
 
 def main() -> None:
-    global device 
-    checkdevice()
+    global device
+    device = checkdevice()
     gc.disable()
     global window
     window = tkinter.Tk()
@@ -198,10 +199,10 @@ def main() -> None:
     file_menu.add_command(label='Save as file', command=processs.save_file)
     file_menu.add_command(label='Exit (ctrl-q)', command=window.destroy)
     menubar.add_cascade(label='File', menu=file_menu)
-    
+
     options_menu = Menu(menubar)
     options_menu.add_command(label='Clear Audio Cache', command=processs.rmaudio)
-    options_menu.add_command(label='Show Values', command=processs.some)
+    options_menu.add_command(label='Show Values', command=processs.showvar)
     options_menu.add_command(label='Check the Wiki', command=processs.checkpages)
     menubar.add_cascade(label='Options', menu=options_menu)
 
@@ -217,17 +218,18 @@ def main() -> None:
     about_menu.add_command(label='Donate', command=processs.some)
     menubar.add_cascade(label='About', menu=about_menu)
 
-
     global entrypoint
     entrypoint = tkinter.Entry(window, width=19)
     global text
     text = tkinter.Text(window, width=40, height=35)
     buttonZ = tkinter.Button(window, text="ORIGINAL", command=processs.view_original, underline=7)
     buttonY = tkinter.Button(window, text='SPEAK', command=processs.speak_r, underline=4)
-    buttonA = tkinter.Button(window, text="SEARCH", command=processs.get_sum, fg='red', activeforeground='violet', underline=5)
-    buttonB = tkinter.Button(window, text="ASK", command=processs.answer_Q, fg='red', activeforeground='violet', underline=2)
+    buttonA = tkinter.Button(window, text="SEARCH", command=processs.get_sum, fg='red', activeforeground='violet',
+                             underline=5)
+    buttonB = tkinter.Button(window, text="ASK", command=processs.answer_Q, fg='red', activeforeground='violet',
+                             underline=2)
     entrypoint.pack(fill='x', expand=True)
-    entrypoint.bind("<Return>", processs.input)
+    entrypoint.bind("<Return>", processs.sum)
 
     buttonA.pack(fill='x', expand=True)
     buttonZ.pack(fill='x', expand=True)
