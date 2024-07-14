@@ -11,7 +11,7 @@ import wikipedia
 import gtts
 from just_playback import Playback
 
-# todo: caching wikipedia answers
+# todo: caching wikipedia answers and adding more ways to utilize cuda
 
 def checkdevice() -> None:
     if torch.cuda.is_available():
