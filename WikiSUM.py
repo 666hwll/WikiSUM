@@ -62,19 +62,8 @@ class programm:
             tex = "Did not found valid text"
         return tex
 
-    def checkpages(self):  
-        query = ""
-        if self.pipe_state:
-            query = self.pipe
+   
 
-        else:
-            query = str(entrypoint.get())
-            if query == "":
-                self.change("No text provided", True, True)
-        self.pipe_state = False
-        self.change("", True, False)
-        res = wikipedia.search(query)
-        self.change(res, True, True)
 
     def open_file(self) -> None:
         p: str = filedialog.askopenfilename()
@@ -135,7 +124,8 @@ class programm:
         try:
             self.results = wikipedia.summary(query, auto_suggest=True)
         except:
-            self.change("Well, no pages match you inquery; under options you may check if there are potential matches.",
+            res = wikipedia.search(query)
+            self.change(f"Well, no pages match you inquery; other pages are:{res}",
                         True, True)
             return False
 
@@ -203,7 +193,6 @@ def main() -> None:
     options_menu = Menu(menubar)
     options_menu.add_command(label='Clear Audio Cache', command=processs.rmaudio)
     options_menu.add_command(label='Show Values', command=processs.showvar)
-    options_menu.add_command(label='Check the Wiki', command=processs.checkpages)
     menubar.add_cascade(label='Options', menu=options_menu)
 
     help_menu = Menu(menubar)
@@ -241,4 +230,3 @@ def main() -> None:
 
 if __name__ == '__main__':
     main()
-
