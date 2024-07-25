@@ -12,6 +12,7 @@ import wikipedia
 import gtts
 from just_playback import Playback
 
+
 # todo: caching wikipedia answers and adding more ways to utilize cuda
 
 def checkdevice() -> None:
@@ -43,11 +44,13 @@ class programm:
         self.tts = Playback()
 
     def onclose(self) -> None:
+        logging.info("Ask user before quitting...")
         if tkinter.messagebox.askokcancel("Quit", "Do you want to quit?"):
             gc.collect(2)
             window.destroy()
 
     def close(self, event) -> None:
+        logging.info("Destroying Window...")
         window.destroy()
 
     ### DUMMY FUNCTIONS for Testing Purposes
@@ -64,9 +67,6 @@ class programm:
         else:
             tex = "Did not found valid text"
         return tex
-
-   
-
 
     def open_file(self) -> None:
         logging.info("File Dialog is being startened...")
@@ -95,7 +95,7 @@ class programm:
     def showvar(self):
         logging.info("User will be shown parameters...")
         var = f"{device}, pipe:{self.pipe_state}"
-        self.change(var,True, True)
+        self.change(var, True, True)
 
     def wikifor(self) -> None:
         logging.info("Opening the wiki in the browser...")
@@ -110,6 +110,10 @@ class programm:
             text.delete(0.0, tkinter.END)
         if insert:
             text.insert(tkinter.END, userin)
+
+    def aboutP(self) -> None:
+        logging.info("Revealing information about the Programm...")
+        self.change("WikiSUM ALPHA 0.4.5\nby Darwin Zmugg\n Scrape and summarize the Wiki", True, True)
 
     def view_original(self) -> None:
         self.state = True
@@ -185,7 +189,6 @@ class programm:
 def main() -> None:
     global device
     device = checkdevice()
-    #gc.disable()
     global window
     window = tkinter.Tk()
     processs = programm()
@@ -210,13 +213,12 @@ def main() -> None:
     menubar.add_cascade(label='Options', menu=options_menu)
 
     help_menu = Menu(menubar)
-    help_menu.add_command(label='User Manual', command=processs.some)
     help_menu.add_command(label='Source Code', command=processs.showsource)
     help_menu.add_command(label='Wiki', command=processs.wikifor)
     menubar.add_cascade(label='Help', menu=help_menu)
 
     about_menu = Menu(menubar)
-    about_menu.add_command(label='About the Project', command=processs.some)
+    about_menu.add_command(label='About the Project', command=processs.aboutP)
     about_menu.add_command(label='Contact', command=processs.some)
     about_menu.add_command(label='Donate', command=processs.some)
     menubar.add_cascade(label='About', menu=about_menu)
