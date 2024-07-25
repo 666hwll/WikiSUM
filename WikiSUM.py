@@ -1,5 +1,6 @@
 import gc
 import os
+import logging
 import webbrowser
 import tkinter
 import torch
@@ -14,6 +15,7 @@ from just_playback import Playback
 # todo: caching wikipedia answers and adding more ways to utilize cuda
 
 def checkdevice() -> None:
+    logging.info("Device is being Checked...")
     if torch.cuda.is_available():
         device = torch.device("cuda")
         # self.device_name = torch.cuda.get_device_name(0) # the name of the graphic chip
@@ -21,6 +23,7 @@ def checkdevice() -> None:
         device = torch.device("mps")
     else:
         device = torch.device("cpu")
+    logging.info(f"Device {device} was found.")
     return device
 
 
@@ -49,7 +52,7 @@ class programm:
 
     ### DUMMY FUNCTIONS for Testing Purposes
     def some(self) -> None:
-        print('This Element does work!')
+        logging.info('This Element does work!')
 
     ### Actual Code continues ->>>>>>
 
@@ -66,6 +69,7 @@ class programm:
 
 
     def open_file(self) -> None:
+        logging.info("File Dialog is being startened...")
         p: str = filedialog.askopenfilename()
         with open(p, encoding="utf-8") as f:
             query = f.read()
@@ -73,12 +77,15 @@ class programm:
             self.pipe_state = True
 
     def save_file(self) -> None:
+        logging.info("About to compile the information...")
         txt = ''.join(
             self.results + '\n\n' + str(self.results_sum[0]['summary_text']) + '\n\n' + self.readable + '\n\n')
         p: str = filedialog.asksaveasfile(mode='w')
         p.write(txt)
+        logging.info("Data was written to Disk.")
 
     def rmaudio(self) -> None:
+        logging.info("About to clear the Audio Cache...")
         try:
             os.remove('out.mp3')
             self.change('Successfully cleared the Audio Cache!')
@@ -86,13 +93,16 @@ class programm:
             self.change('No Audio Cache found to clear.', True, True)
 
     def showvar(self):
+        logging.info("User will be shown parameters...")
         var = f"{device}, pipe:{self.pipe_state}"
         self.change(var,True, True)
 
     def wikifor(self) -> None:
+        logging.info("Opening the wiki in the browser...")
         webbrowser.open("https://github.com/666hwll/WikiSUM/wiki")
 
     def showsource(self) -> None:
+        logging.info("Project is opened in the browser.")
         webbrowser.open("https://github.com/666hwll/WikiSUM/")
 
     def change(self, userin: str, delete_text: bool, insert: bool) -> None:
@@ -107,6 +117,7 @@ class programm:
         gc.collect(0)
 
     def get_sum(self) -> bool:
+        logging.info("Getting input for summary...")
         query = ""
         if self.pipe_state:
             query = self.pipe
@@ -137,7 +148,9 @@ class programm:
 
     def sum(self, event) -> None:
         self.get_sum()
+
     def answer_Q(self) -> None:
+        logging.info("Questions are in process...")
         query = ""
         if self.pipe_state:
             query = self.pipe
@@ -164,6 +177,7 @@ class programm:
         obj = gtts.gTTS(text=xet, lang='en', slow=False)
         f: str = 'out.mp3'
         obj.save(f)
+        logging.info("Saved the Audio Buffer to Disk. Now it is being loaded and played...")
         self.tts.load_file(f)
         self.tts.play()
 
@@ -171,7 +185,7 @@ class programm:
 def main() -> None:
     global device
     device = checkdevice()
-    gc.disable()
+    #gc.disable()
     global window
     window = tkinter.Tk()
     processs = programm()
