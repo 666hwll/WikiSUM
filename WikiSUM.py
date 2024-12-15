@@ -58,7 +58,10 @@ class programm:
         logging.info('This Element does work!')
 
     ### Actual Code continues ->>>>>>
-
+    def donate(self) -> None:
+        logging.info('Listing Donation Options...')
+        self.change("Monero XMR Wallet: 48NYH8WqzWq4ccLLxFFcXM8KNwp4MnkvzJFpB85YeesPTFzAN4cXFaucjjoRXAJoib4yL1NWRh3nMFDaNNgRoV9x6gr16k6", True, True)
+    
     def checkcurrtext(self):
         if self.state:
             tex = self.results
@@ -220,7 +223,7 @@ def main() -> None:
     about_menu = Menu(menubar)
     about_menu.add_command(label='About the Project', command=processs.aboutP)
     about_menu.add_command(label='Contact', command=processs.some)
-    about_menu.add_command(label='Donate', command=processs.some)
+    about_menu.add_command(label='Donate', command=processs.donate)
     menubar.add_cascade(label='About', menu=about_menu)
 
     global entrypoint
