@@ -1,4 +1,4 @@
-# WikiSUM
+# WikiSUM - portable Wikireader
 Summarize Wikipedia Articles and ask the original with AI
 
 ## UPDATE:
