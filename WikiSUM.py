@@ -7,7 +7,7 @@ import torch
 from tkinter import messagebox
 from tkinter import filedialog
 from tkinter import Menu
-import transformers
+import transformers # will be replaced by: 'https://pypi.org/project/openai/' and 'https://ollama.com/blog/openai-compatibility'
 import wikipedia
 import gtts # will be replaced by 'pyttsx3'
 from just_playback import Playback # same as '12'
