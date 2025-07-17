@@ -1,4 +1,4 @@
-import gc
+import gc # will probably remove this
 import os
 import logging
 import webbrowser
@@ -14,6 +14,9 @@ from just_playback import Playback # same as '12'
 
 
 # todo: caching wikipedia answers and adding more ways to utilize cuda
+#        adding settings panel like in this example: https://www.plus2net.com/python/tkinter-setting-json.php
+#        changing transformers to the openai package; so you could use ollama
+#        and overall following this guide
 
 def checkdevice() -> None:
     logging.info("Device is being Checked...")
