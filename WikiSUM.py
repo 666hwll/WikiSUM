@@ -9,8 +9,8 @@ from tkinter import filedialog
 from tkinter import Menu
 import transformers
 import wikipedia
-import gtts
-from just_playback import Playback
+import gtts # will be replaced by 'pyttsx3'
+from just_playback import Playback # same as '12'
 
 
 # todo: caching wikipedia answers and adding more ways to utilize cuda
