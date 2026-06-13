@@ -1,6 +1,6 @@
 # WikiSUM - portable Wikireader
 Summarize Wikipedia Articles and ask the original with AI
-![look of wikisum](/images/to/wikisum-gui.png "The WikiSUM Tkinter GUI")
+![look of wikisum](/images/to/wikisum-gui.png)
 [![forthebadge made-with-python](http://ForTheBadge.com/images/badges/made-with-python.svg)](https://www.python.org/)
 
 ## UPDATE:
